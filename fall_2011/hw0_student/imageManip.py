@@ -20,7 +20,7 @@ def load(image_path):
 
     ### YOUR CODE HERE
     # Use skimage io.imread
-    pass
+    out=io.imread(image_path)
     ### END YOUR CODE
 
     # Let's convert the image to be between the correct range.
@@ -45,7 +45,7 @@ def crop_image(image, start_row, start_col, num_rows, num_cols):
     out = None
 
     ### YOUR CODE HERE
-    pass
+    out=image[start_row:start_row+num_rows, start_col:start_col+num_cols,:]
     ### END YOUR CODE
 
     return out
@@ -68,7 +68,7 @@ def dim_image(image):
     out = None
 
     ### YOUR CODE HERE
-    pass
+    out=0.5*image*image
     ### END YOUR CODE
 
     return out
