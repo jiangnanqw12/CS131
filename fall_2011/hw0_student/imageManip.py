@@ -96,7 +96,11 @@ def resize_image(input_image, output_rows, output_cols):
     #    > This should require two nested for loops!
 
     ### YOUR CODE HERE
-    pass
+    row_scale_factor=input_rows/output_rows
+    col_scale_factor=input_cols/output_cols
+    for row in range(output_rows):
+        for col in range(output_cols):
+            output_image[row,col]=input_image[int(row*row_scale_factor),int(col*col_scale_factor)]
     ### END YOUR CODE
 
     # 3. Return the output image
@@ -119,7 +123,8 @@ def rotate2d(point, theta):
     # Reminder: np.cos() and np.sin() will be useful here!
 
     ## YOUR CODE HERE
-    pass
+    M=np.array([[np.cos(theta),-np.sin(theta)],[np.sin(theta),np.cos(theta)]])
+    return np.matmul(M,point)
     ### END YOUR CODE
 
 
@@ -139,9 +144,21 @@ def rotate_image(input_image, theta):
 
     # 1. Create an output image with the same shape as the input
     output_image = np.zeros_like(input_image)
-
+    output_rows, output_cols, channels = input_image.shape
     ## YOUR CODE HERE
-    pass
+    '''
+    p' = R(p-c) + c
+    p = R_-1(p'-c) + c
+    '''
+    center = np.array([int(input_rows/2), int(input_cols/2)])
+    for x in range(output_rows):
+        for y in range(output_cols):
+            p_=np.array([x,y])
+            p=rotate2d(p_-center, theta)+center
+            # check valid pixel
+            if (0 <= p[0] <= output_rows and 0 <= p[1] <= output_cols):
+                output_image[x][y] = input_image[int(p[0])][int(p[1])]
+
     ### END YOUR CODE
 
     # 3. Return the output image
