@@ -36,7 +36,10 @@ def conv(image, kernel):
     padded = np.pad(image, pad_width, mode='edge')
 
     ### YOUR CODE HERE
-    pass
+    kernel = np.flip(np.flip(kernel, 0), 1)
+    for i in range(Hi):
+        for j in range(Wi):
+            out[i, j] = np.sum(padded[i: i+Hk, j: j+Wk] * kernel)
     ### END YOUR CODE
 
     return out
@@ -61,7 +64,10 @@ def gaussian_kernel(size, sigma):
     kernel = np.zeros((size, size))
 
     ### YOUR CODE HERE
-    pass
+    k = (size-1)/2
+    for i in range(size):
+        for j in range(size):
+            kernel[i, j] = np.exp(-((i-k)**2+(j-k)**2)/(2*sigma**2))/(2*np.pi*sigma**2)
     ### END YOUR CODE
 
     return kernel
@@ -81,6 +87,8 @@ def partial_x(img):
     out = None
 
     ### YOUR CODE HERE
+    filter = 1/2*np.array([1,0,-1]).reshape((1, 3))
+    out = conv(np.array(img),filter)
     pass
     ### END YOUR CODE
 
@@ -101,7 +109,8 @@ def partial_y(img):
     out = None
 
     ### YOUR CODE HERE
-    pass
+    filter = 1/2*np.array([1, 0, -1]).reshape((3, 1))
+    out = conv(np.array(img), filter)
     ### END YOUR CODE
 
     return out
@@ -125,7 +134,10 @@ def gradient(img):
     theta = np.zeros(img.shape)
 
     ### YOUR CODE HERE
-    pass
+    x_deri = partial_x(img)
+    y_deri = partial_y(img)
+    G = np.sqrt(x_deri**2 + y_deri**2)
+    theta = np.rad2deg(np.arctan2(y_deri, x_deri)) % 360
     ### END YOUR CODE
 
     return G, theta
@@ -222,7 +234,7 @@ def link_edges(strong_edges, weak_edges):
     Args:
         strong_edges: binary image of shape (H, W).
         weak_edges: binary image of shape (H, W).
-    
+
     Returns:
         edges: numpy boolean array of shape(H, W).
     """
@@ -270,7 +282,7 @@ def hough_transform(img):
 
     Args:
         img: binary image of shape (H, W).
-        
+
     Returns:
         accumulator: numpy array of shape (m, n).
         rhos: numpy array of shape (m, ).
