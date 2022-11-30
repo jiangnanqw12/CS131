@@ -165,6 +165,23 @@ def non_maximum_suppression(G, theta):
 
     #print(G)
     ### BEGIN YOUR CODE
+    for i in range(1, H-1):
+        for j in range(1,W-1):
+            current_angle = theta[i,j]
+            if current_angle == 0 or current_angle == 180:
+                neighbors = [G[i, j-1], G[i, j+1]]
+            elif current_angle == 45 or current_angle == 225:
+                neighbors = [G[i-1, j-1], G[i+1, j+1]]
+            elif current_angle == 90 or current_angle == 270:
+                neighbors = [G[i-1, j], G[i+1, j]]
+            elif current_angle == 135 or current_angle == 315:
+                neighbors = [G[i-1, j+1], G[i+1, j-1]]
+            else:
+                raise RuntimeError("Wrong theta value {}- should be one of the following[0,45,90,135,180,225,270,315]".format(current_angle))
+            if G[i,j] >= np.max(neighbors):
+                out[i,j] = G[i,j]
+            else:
+                out[i, j] = 0
     pass
     ### END YOUR CODE
 
@@ -190,6 +207,8 @@ def double_thresholding(img, high, low):
     weak_edges = np.zeros(img.shape, dtype=np.bool)
 
     ### YOUR CODE HERE
+    strong_edges = img > high
+    weak_edges = (img < high) & (img > low)
     pass
     ### END YOUR CODE
 
@@ -249,7 +268,36 @@ def link_edges(strong_edges, weak_edges):
     edges = np.copy(strong_edges)
 
     ### YOUR CODE HERE
-    pass
+    edges = np.copy(strong_edges)
+    # Perform BFS!
+    nodes_to_visit=[]
+    visited_nodes = np.zeros_like(edges)
+    nodes_to_visit.append((0,0))
+    # While our nodes queue is not empty
+    while len(nodes_to_visit) != 0:
+            # Take the first element in the list
+            curr_i, curr_j = nodes_to_visit.pop(0)
+
+            # If we already visited this node - just continue
+            if visited_nodes[curr_i, curr_j] == 1:
+                continue
+
+            # Mark node as visited
+            visited_nodes[curr_i, curr_j] = 1
+
+            neighors = get_neighbors(curr_i, curr_j, H, W)
+
+            # Add neighbors
+            for x,y in neighors:
+                nodes_to_visit.append((x,y))
+
+            # Check for adjacent edges
+            adjacent_edges = False
+            for x,y in neighors:
+                adjacent_edges = edges[x, y] or adjacent_edges
+
+            if weak_edges[curr_i,curr_j] and adjacent_edges:
+                edges[curr_i,curr_j] = True
     ### END YOUR CODE
 
     return edges
@@ -267,7 +315,12 @@ def canny(img, kernel_size=5, sigma=1.4, high=20, low=15):
         edge: numpy array of shape(H, W).
     """
     ### YOUR CODE HERE
-    pass
+    kernel = gaussian_kernel(kernel_size, sigma)
+    smoothed = conv(img, kernel)
+    G, theta = gradient(smoothed)
+    nms = non_maximum_suppression(G, theta)
+    strong_edges, weak_edges = double_thresholding(nms, high, low)
+    edge = link_edges(strong_edges, weak_edges)
     ### END YOUR CODE
 
     return edge
@@ -307,7 +360,10 @@ def hough_transform(img):
     # Find rho corresponding to values in thetas
     # and increment the accumulator in the corresponding coordiate.
     ### YOUR CODE HERE
-    pass
+    for i, j in zip(ys, xs):
+        for idx in range(thetas.shape[0]):
+            r = j * cos_t[idx] + i * sin_t[idx]
+            accumulator[int(r + diag_len), idx] += 1
     ### END YOUR CODE
 
     return accumulator, rhos, thetas
