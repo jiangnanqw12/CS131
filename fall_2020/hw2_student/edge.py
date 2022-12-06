@@ -88,8 +88,11 @@ def partial_x(img):
 
     ### YOUR CODE HERE
     filter = 1/2*np.array([1,0,-1]).reshape((1, 3))
+    #filter=np.array([[0.5,0,-0.5],[1,0,-1],[0.5,0,-0.5]])
+    print(filter)
+    print("\n")
     out = conv(np.array(img),filter)
-    pass
+
     ### END YOUR CODE
 
     return out
