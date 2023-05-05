@@ -273,34 +273,19 @@ def link_edges(strong_edges, weak_edges):
     ### YOUR CODE HERE
     edges = np.copy(strong_edges)
     # Perform BFS!
-    nodes_to_visit=[]
-    visited_nodes = np.zeros_like(edges)
-    nodes_to_visit.append((0,0))
-    # While our nodes queue is not empty
-    while len(nodes_to_visit) != 0:
-            # Take the first element in the list
-            curr_i, curr_j = nodes_to_visit.pop(0)
-
-            # If we already visited this node - just continue
-            if visited_nodes[curr_i, curr_j] == 1:
-                continue
-
-            # Mark node as visited
-            visited_nodes[curr_i, curr_j] = 1
-
-            neighors = get_neighbors(curr_i, curr_j, H, W)
-
-            # Add neighbors
-            for x,y in neighors:
-                nodes_to_visit.append((x,y))
-
-            # Check for adjacent edges
-            adjacent_edges = False
-            for x,y in neighors:
-                adjacent_edges = edges[x, y] or adjacent_edges
-
-            if weak_edges[curr_i,curr_j] and adjacent_edges:
-                edges[curr_i,curr_j] = True
+    visited = []
+    def dfs(visited, node):
+        if node not in visited:
+            visited.append(node)
+            neighbours = get_neighbors(node[0], node[1], H, W)
+            for neighbour in neighbours:
+                if weak_edges[neighbour] == 1:
+                    edges[neighbour] = 1
+                    dfs(visited, neighbour)
+    for i in range(H):
+        for j in range(W):
+            if edges[i, j]:
+                dfs(visited, (i, j))
     ### END YOUR CODE
 
     return edges
